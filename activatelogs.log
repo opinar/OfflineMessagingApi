@@ -1,0 +1,31 @@
+INFO:root:User loggout out.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:08:44] "[37mGET /logout HTTP/1.1[0m" 200 -
+INFO:root:User logged in.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:08:52] "[37mPOST /login HTTP/1.1[0m" 200 -
+INFO:werkzeug: * Detected change in '/Users/ozgepinar/Documents/messaging-app/app.py', reloading
+INFO:root:User loggout out.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:09:43] "[37mGET /logout HTTP/1.1[0m" 200 -
+INFO:root:User (pinaroz) logged in.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:09:45] "[37mPOST /login HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:26:18] "[37mGET /users HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:26:27] "[37mPOST /login HTTP/1.1[0m" 200 -
+INFO:root:User (usertobeblocked) has been blocked.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:26:44] "[37mPUT /block HTTP/1.1[0m" 200 -
+ERROR:root:Message cannot be sent.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:26:50] "[31m[1mPOST /message HTTP/1.1[0m" 422 -
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:26:58] "[37mGET /messages HTTP/1.1[0m" 200 -
+ERROR:root:Message cannot be sent.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:07] "[31m[1mPOST /message HTTP/1.1[0m" 422 -
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:11] "[37mGET /messages HTTP/1.1[0m" 200 -
+INFO:root:User (usertobeblocked) has been blocked.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:17] "[37mPUT /block HTTP/1.1[0m" 200 -
+INFO:root:User (usertobeblocked) has been blocked.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:24] "[37mPUT /block HTTP/1.1[0m" 200 -
+INFO:root:User (usertobeblocked) has been blocked.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:28] "[37mPUT /block HTTP/1.1[0m" 200 -
+INFO:root:Message has been sent.
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:32] "[37mPOST /message HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:35] "[37mGET /messages HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:28:04] "[37mGET /messages_from_user/2 HTTP/1.1[0m" 200 -
+INFO:root:User loggout out.
+INFO:werkzeug:127.0.0.1 - - [07/Sep/2020 21:33:11] "[37mGET /api/logout HTTP/1.1[0m" 200 -
