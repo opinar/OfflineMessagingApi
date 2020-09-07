@@ -146,19 +146,30 @@ def get_current_user():
 
 # Delete User
 @app.route('/api/user/<id>', methods=['DELETE'])
+@login_required
 def delete_user(id):
+    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
+    if not current_user.is_authenticated:
+        logging.warning('Login is required to delete a user.')
+        return 403
+
     user = User.query.get(id)
     username = user.username
     db.session.delete(user)
     db.session.commit()
-    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
     logging.info('User ({}) has been deleted.'.format(username))
     return user_schema.jsonify(user)
 
 
 # Block A User
 @app.route('/api/block', methods=['PUT'])
+@login_required
 def block_user():
+    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
+    if not current_user.is_authenticated:
+        logging.warning('Login is required to block a user.')
+        return 403
+
     user_to_be_blocked = User.query.filter_by(username=request.json['username']).first()
     if user_to_be_blocked is None:
         response = {'error': 'User ({}) cannot be found'.format(request.json['username'])}
@@ -170,7 +181,6 @@ def block_user():
         current_user.blocked_users = [user for user in current_user.blocked_users if user != user_to_be_blocked.id]
 
     db.session.commit()
-    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
     logging.info('User ({}) has been blocked.'.format(user_to_be_blocked.username))
     return user_schema.jsonify(current_user)
 
@@ -215,6 +225,10 @@ register_message_schema = RegisterMessageSchema()
 @app.route('/api/message', methods=['GET', 'POST'])
 @login_required
 def create_msg():
+    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
+    if not current_user.is_authenticated:
+        logging.warning('Login is required to send a message.')
+        return 403
 
     recevier_user = User.query.filter_by(username=request.json['username']).first()
     if recevier_user is None:
@@ -229,7 +243,7 @@ def create_msg():
     schema_data['receiver_user_id'] = recevier_user.id
     schema_data['current_user_id'] = current_user.id
     schema_data['message'] = request.json['message']
-    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
+
     try:
         data = register_message_schema.load(schema_data)
     except ValidationError as err:
@@ -252,11 +266,16 @@ def create_msg():
 
 # Delete Message
 @app.route('/api/message/<id>', methods=['DELETE'])
+@login_required
 def delete_message(id):
+    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
+    if not current_user.is_authenticated:
+        logging.warning('Login is required to delete a message.')
+        return 403
     msg = Message.query.get(id)
     db.session.delete(msg)
     db.session.commit()
-    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
+
     logging.info('Message has been deleted.')
     return message_schema.jsonify(msg)
 
