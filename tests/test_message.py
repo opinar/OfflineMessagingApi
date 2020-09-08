@@ -9,18 +9,21 @@ from app import Message, User
 class MessageTestCase(unittest.TestCase):
     def test_create_message(self):
         # Login required
-        user_params = json.dumps({"email": "pinaroz@gmail.com", "password": "password"})
+        params = json.dumps({"email": "pinaroz@gmail.com", "password": "password"})
         tester = flask_app.test_client(self)
-        tester.post('/api/login', headers={"Content-Type": "application/json"}, data=user_params)
+        tester.post('/api/login', headers={"Content-Type": "application/json"}, data=params)
 
-        params = json.dumps(
+        # Invalid User
+        user = User.query.filter_by(username='wrongusername').first()
+        assert user is None
+
+        params_invalid = json.dumps(
             {"username": "wrongusername", "message": "something"})
 
-        response = tester.post('/api/message', headers={"Content-Type": "application/json"}, data=params)
-        data = json.loads(response.data)
+        res = tester.post('/api/message', headers={"Content-Type": "application/json"}, data=params_invalid)
+        assert res.status_code == 500
 
-        assert data['error'] == 'User (wrongusername) cannot be found'
-
+        # Valid User
         params = json.dumps(
             {"username": "otheruser", "message": "something"})
 
@@ -30,9 +33,14 @@ class MessageTestCase(unittest.TestCase):
         assert data['message'] == 'something'
 
     def test_delete_message(self):
+        # Login required
+        user_params = json.dumps({"email": "pinaroz@gmail.com", "password": "password"})
+        tester = flask_app.test_client(self)
+        tester.post('/api/login', headers={"Content-Type": "application/json"}, data=user_params)
+
         message = Message.query.filter_by(message='hello').first()
         assert message is not None
-        tester = flask_app.test_client(self)
+
         tester.delete('/api/message/{}'.format(message.id), content_type='application/json')
 
         message = Message.query.filter_by(message='hello').first()
@@ -44,6 +52,7 @@ class MessageTestCase(unittest.TestCase):
         tester = flask_app.test_client(self)
         tester.post('/api/login', headers={"Content-Type": "application/json"}, data=user_params)
 
+        # Before Block
         user = User.query.filter_by(username='pinaroz').first()
         assert len(user.blocked_users) == 0
 
@@ -54,10 +63,13 @@ class MessageTestCase(unittest.TestCase):
         user = User.query.filter_by(username='pinaroz').first()
         assert len(user.blocked_users) == 1
 
-        # Trying to send message to blocked User
+        # Blocked User tries to send message user (pinaroz)
         params = json.dumps(
             {"username": "usertobeblocked", "message": "how are you?"})
 
-        response = tester.post('/api/message', headers={"Content-Type": "application/json"}, data=params)
-        data = json.loads(response.data)
-        assert data['error']['receiver_user_id'][0] == 'User has been blocked. Therefore message cannot be sent.'
+        tester.post('/api/message', headers={"Content-Type": "application/json"}, data=params)
+
+        usertobeblocked = User.query.filter_by(username='usertobeblocked').first()
+        # Expecting message is not created
+        msg = Message.query.filter_by(current_user_id=usertobeblocked.id, receiver_user_id=user.id, message='how are you?').first()
+        assert msg is None

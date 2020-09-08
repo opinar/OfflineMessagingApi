@@ -49,9 +49,14 @@ class UserTestCase(unittest.TestCase):
         self.assertEqual(len(data), 3)
 
     def test_delete_user(self):
+        # Login required
+        params = json.dumps({"email": "pinaroz@gmail.com", "password": "password"})
+        tester = flask_app.test_client(self)
+        tester.post('/api/login', headers={"Content-Type": "application/json"}, data=params)
+
         user = User.query.filter_by(username='pinaroz').first()
         assert user is not None
-        tester = flask_app.test_client(self)
+
         tester.delete('/api/user/{}'.format(user.id), content_type='application/json')
 
         user = User.query.filter_by(username='pinaroz').first()

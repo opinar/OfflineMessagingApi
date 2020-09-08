@@ -25,7 +25,7 @@ bcrypt = Bcrypt(app)
 ma = Marshmallow(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'app.login'
+login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
 
@@ -79,11 +79,12 @@ register_user_schema = RegisterUserSchema()
 # Create a User
 @app.route('/api/register', methods=['POST'])
 def register():
+    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
     if current_user.is_authenticated:
+        logging.info('User has already signed in.')
         return jsonify({'msg': 'You already signed in.'})
 
     hashed_password = bcrypt.generate_password_hash(request.json['password']).decode('utf-8')
-    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
     try:
         data = register_user_schema.load(request.json)
     except ValidationError as err:
@@ -98,7 +99,7 @@ def register():
                 blocked_users=data['blocked_users'])
     db.session.add(user)
     db.session.commit()
-    logging.info('user has been registered')
+    logging.info('User ({}) has been registered'.format(user.username))
 
     return user_schema.jsonify(user)
 
@@ -106,11 +107,12 @@ def register():
 # Login
 @app.route('/api/login', methods=['GET', 'POST'])
 def login():
+    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
     if current_user.is_authenticated:
+        logging.info('User has already signed in.')
         return jsonify({'msg': 'You already signed in.'})
 
     user = User.query.filter_by(email=request.json['email']).first()
-    logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
     if user:
         login_user(user, remember=False)
         logging.info('User ({}) logged in.'.format(user.username))
@@ -125,7 +127,7 @@ def login():
 def logout():
     logout_user()
     logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
-    logging.info('User loggout out.')
+    logging.info('User logged out.')
     return jsonify({'msg': 'You logged out.'})
 
 
@@ -149,11 +151,12 @@ def get_current_user():
 @login_required
 def delete_user(id):
     logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
-    if not current_user.is_authenticated:
-        logging.warning('Login is required to delete a user.')
-        return 403
 
     user = User.query.get(id)
+    if user is None:
+        logging.error('User to be deleted is not found.')
+        return 404
+
     username = user.username
     db.session.delete(user)
     db.session.commit()
@@ -166,9 +169,6 @@ def delete_user(id):
 @login_required
 def block_user():
     logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
-    if not current_user.is_authenticated:
-        logging.warning('Login is required to block a user.')
-        return 403
 
     user_to_be_blocked = User.query.filter_by(username=request.json['username']).first()
     if user_to_be_blocked is None:
@@ -226,36 +226,29 @@ register_message_schema = RegisterMessageSchema()
 @login_required
 def create_msg():
     logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
-    if not current_user.is_authenticated:
-        logging.warning('Login is required to send a message.')
-        return 403
 
-    recevier_user = User.query.filter_by(username=request.json['username']).first()
-    if recevier_user is None:
-        response = {'error': 'User ({}) cannot be found'.format(request.json['username'])}
-        return jsonify(response), 422
+    receiver_user = User.query.filter_by(username=request.json['username']).first()
+    if receiver_user is None:
+        logging.error('User ({}) is not found to send a message'.format(request.json['username']))
+        return 500
 
-    noew = datetime.now()
+    receiver_user = User.query.get(receiver_user.id)
+    if current_user.id in receiver_user.blocked_users:
+        logging.critical('Message cannot be sent since receiver user has blocked current user.')
+        return 500
+
+    if receiver_user.id in current_user.blocked_users:
+        logging.critical('Message cannot be sent since current user has blocked receiver user.')
+        return 500
+
+    currentdate = datetime.now()
     # dd/mm/YY H:M:S
-    dt_string = noew.strftime("%d/%m/%Y %H:%M:%S")
-    schema_data = {}
-    schema_data['messaging_date'] = dt_string
-    schema_data['receiver_user_id'] = recevier_user.id
-    schema_data['current_user_id'] = current_user.id
-    schema_data['message'] = request.json['message']
-
-    try:
-        data = register_message_schema.load(schema_data)
-    except ValidationError as err:
-        errors = err.messages
-        response = {'error': errors}
-        logging.error('Message cannot be sent.')
-        return jsonify(response), 422
+    dt_string = currentdate.strftime("%d/%m/%Y %H:%M:%S")
 
     message = Message(current_user_id=current_user.id,
-                      receiver_user_id=recevier_user.id,
-                      message=data['message'],
-                      messaging_date=data['messaging_date'])
+                      receiver_user_id=receiver_user.id,
+                      message=request.json['message'],
+                      messaging_date=dt_string)
 
     db.session.add(message)
     db.session.commit()
@@ -269,10 +262,12 @@ def create_msg():
 @login_required
 def delete_message(id):
     logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
-    if not current_user.is_authenticated:
-        logging.warning('Login is required to delete a message.')
-        return 403
+
     msg = Message.query.get(id)
+    if msg is None:
+        logging.error('Message to be deleted is not found.')
+        return 404
+
     db.session.delete(msg)
     db.session.commit()
 

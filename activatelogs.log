@@ -29,3 +29,18 @@ INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:27:35] "[37mGET /messages HTTP/1.1
 INFO:werkzeug:127.0.0.1 - - [06/Sep/2020 14:28:04] "[37mGET /messages_from_user/2 HTTP/1.1[0m" 200 -
 INFO:root:User loggout out.
 INFO:werkzeug:127.0.0.1 - - [07/Sep/2020 21:33:11] "[37mGET /api/logout HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Sep/2020 11:17:11] "[35m[1mGET /api/login?next=%2Fapi%2Fuser%2F4 HTTP/1.1[0m" 500 -
+INFO:werkzeug: * Detected change in '/Users/ozgepinar/Documents/messaging-app/app.py', reloading
+INFO:werkzeug:127.0.0.1 - - [08/Sep/2020 11:19:34] "[35m[1mGET /api/login?next=%2Fapi%2Fuser%2F4 HTTP/1.1[0m" 500 -
+INFO:werkzeug: * Detected change in '/Users/ozgepinar/Documents/messaging-app/app.py', reloading
+INFO:werkzeug:127.0.0.1 - - [08/Sep/2020 11:21:43] "[35m[1mGET /api/login?next=%2Fapi%2Fuser%2F4 HTTP/1.1[0m" 500 -
+INFO:root:User (pinaroz) logged in.
+INFO:werkzeug:127.0.0.1 - - [08/Sep/2020 11:21:55] "[37mPOST /api/login HTTP/1.1[0m" 200 -
+INFO:root:User (newuser) has been deleted.
+INFO:werkzeug:127.0.0.1 - - [08/Sep/2020 11:21:59] "[37mDELETE /api/user/4 HTTP/1.1[0m" 200 -
+ERROR:root:User (invalidst) is not found to send a message
+INFO:werkzeug:127.0.0.1 - - [08/Sep/2020 11:37:11] "[35m[1mPOST /api/message HTTP/1.1[0m" 500 -
+INFO:werkzeug: * Detected change in '/Users/ozgepinar/Documents/messaging-app/app.py', reloading
+ERROR:root:User (invalidst) is not found to send a message
+INFO:werkzeug:127.0.0.1 - - [08/Sep/2020 11:37:53] "[35m[1mPOST /api/message HTTP/1.1[0m" 500 -
+INFO:werkzeug: * Detected change in '/Users/ozgepinar/Documents/messaging-app/app.py', reloading
