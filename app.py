@@ -8,7 +8,6 @@ import os
 import logging
 from flask_login import login_user, current_user, logout_user, login_required
 from marshmallow import ValidationError, validates_schema
-# from users.model import User
 
 # Init app
 app = Flask(__name__)
