@@ -56,7 +56,7 @@ class UserSchema(ma.Schema):
 
 class RegisterUserSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'username', 'email', 'password', 'blocked_users')
+        fields = ('id', 'username', 'email', 'password')
 
     @validates_schema(pass_original=True)
     def validate_numbers(self, _, data, **kwargs):
@@ -79,9 +79,6 @@ register_user_schema = RegisterUserSchema()
 @app.route('/api/register', methods=['POST'])
 def register():
     logging.basicConfig(filename='activatelogs.log', level=logging.DEBUG)
-    if current_user.is_authenticated:
-        logging.info('User has already signed in.')
-        return jsonify({'msg': 'You already signed in.'})
 
     hashed_password = bcrypt.generate_password_hash(request.json['password']).decode('utf-8')
     try:
@@ -95,7 +92,7 @@ def register():
     user = User(username=data['username'],
                 email=data['email'],
                 password=hashed_password,
-                blocked_users=data['blocked_users'])
+                blocked_users=[])
     db.session.add(user)
     db.session.commit()
     logging.info('User ({}) has been registered'.format(user.username))
@@ -154,7 +151,7 @@ def delete_user(id):
     user = User.query.get(id)
     if user is None:
         logging.error('User to be deleted is not found.')
-        return 404
+        return jsonify({'msg': 'User to be deleted is not found.'}), 404
 
     username = user.username
     db.session.delete(user)
@@ -279,6 +276,7 @@ def delete_message(id):
 def get_messages():
     all_msg = Message.query.all()
     result = messages_schema.dump(all_msg)
+
     return jsonify(result)
 
 

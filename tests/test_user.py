@@ -16,8 +16,7 @@ class UserTestCase(unittest.TestCase):
         params = json.dumps(
             {"username": "newuser",
              "password": "password",
-             "email": "newuser@gmail.com",
-             "blocked_users": []
+             "email": "newuser@gmail.com"
              })
 
         tester = flask_app.test_client(self)
