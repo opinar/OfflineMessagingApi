@@ -1,6 +1,6 @@
 # OfflineMessagingApi
 
-python3 --version
+python3 --version  (python 3.7)
 
 pip3 install pipenv
 
